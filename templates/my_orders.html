@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .orders-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .order-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #efebe9;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #d7ccc8;
+    }
+    
+    .order-header .order-id {
+      font-weight: 600;
+      color: #5d4037;
+    }
+    
+    .order-header .order-date {
+      color: #8d6e63;
+      font-size: 0.9rem;
+    }
+    
+    .order-content {
+      display: flex;
+      padding: 1.5rem;
+      gap: 1.5rem;
+    }
+    
+    .order-book-image {
+      flex: 0 0 120px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .order-book-image img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+    
+    .order-details {
+      flex: 1;
+    }
+    
+    .order-details h3 {
+      font-family: 'Lora', serif;
+      margin-bottom: 0.5rem;
+      color: #5d4037;
+    }
+    
+    .order-details p {
+      margin-bottom: 0.3rem;
+      color: #5d4037;
+    }
+    
+    .order-actions {
+      margin-top: 1rem;
+    }
+    
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background-color: #f8f5f2;
+      border-top: 1px solid #d7ccc8;
+    }
+    
+    .order-status {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .status-completed {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    .status-pending {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+    
+    .order-total {
+      font-weight: 600;
+      color: #5d4037;
+      font-size: 1.1rem;
+    }
+    
+    .empty-orders {
+      text-align: center;
+      padding: 3rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-orders i {
+      font-size: 3rem;
+      color: #d7ccc8;
+      margin-bottom: 1rem;
+    }
+    
+    .search-orders {
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .search-orders input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    .search-orders button {
+      background-color: #8d6e63;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .search-orders button:hover {
+      background-color: #6d4c41;
+    }
+    
+    .filter-options {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    
+    .filter-options select {
+      padding: 0.5rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="header">
+    <a href="{{ url_for('home_page') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+    </a>
+  </div>
+  
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <div class="navbar-welcome">
+      <i class="fas fa-shopping-bag"></i> My Orders
+    </div>
+    <div class="navbar-actions">
+      <a href="{{ url_for('dashboard') }}"><i class="fas fa-user"></i> Dashboard</a>
+      <a href="{{ url_for('view_books') }}" class="books"><i class="fas fa-book"></i> All Books</a>
+      <a href="{{ url_for('my_sales') }}"><i class="fas fa-chart-line"></i> My Sales</a>
+      <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h1 class="section-title">My Purchase History</h1>
+    
+    <div class="orders-container">
+      <!-- Search and Filter Options -->
+      <div class="search-orders">
+        <input type="text" id="orderSearch" placeholder="Search in your orders..." onkeyup="searchOrders()">
+      </div>
+      
+      {% if orders %}
+        {% for order in orders %}
+          <div class="order-card">
+            <div class="order-header">
+              <span class="order-id">Order #{{ order.id }}</span>
+              <span class="order-date">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+            </div>
+            <div class="order-content">
+              <div class="order-book-image">
+                <img src="{{ url_for('static', filename='uploads/' ~ order.book.image_file) if order.book.image_file else url_for('static', filename='default-book.jpg') }}" 
+                     alt="{{ order.book.title }} cover">
+              </div>
+              <div class="order-details">
+                <h3>{{ order.book.title }}</h3>
+                <p><strong>Author:</strong> {{ order.book.author }}</p>
+                <p><strong>Genre:</strong> {{ order.book.genre }}</p>
+                <p><strong>Seller:</strong> {{ order.book.user.username }}</p>
+                <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                <div class="order-actions">
+                  <a href="{{ url_for('book_detail', post_id=order.book.id) }}" class="btn btn-secondary">View Book Details</a>
+                </div>
+              </div>
+            </div>
+            <div class="order-footer">
+              <span class="order-status status-completed">Completed</span>
+              <span class="order-total">Total: ${{ "%.2f"|format(order.total_price|float) }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-orders">
+          <i class="fas fa-shopping-cart fa-3x"></i>
+          <h3>No Orders Yet</h3>
+          <p>You haven't placed any orders yet. Start exploring our collection!</p>
+          <a href="{{ url_for('view_books') }}" class="btn btn-primary">Browse Books</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Simple Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+    <p>&copy; 2025 PageStream - Share Your Books With The World</p>
+  </footer>
+  
+  <script>
+    function searchOrders() {
+      const input = document.getElementById('orderSearch');
+      const filter = input.value.toUpperCase();
+      const orderCards = document.getElementsByClassName('order-card');
+      
+      for (let i = 0; i < orderCards.length; i++) {
+        const card = orderCards[i];
+        const text = card.textContent || card.innerText;
+        
+        if (text.toUpperCase().indexOf(filter) > -1) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>

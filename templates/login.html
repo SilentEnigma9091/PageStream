@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="header">
+    <a href="{{ url_for('home_page') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+    </a>
+  </div>
+
+  <!-- Login Form Container -->
+  <div class="form-container">
+    <h2><i class="fas fa-sign-in-alt"></i> Login to PageStream</h2>
+    
+    <!-- Flash Messages (Errors or Success) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Login Form -->
+    <form class="form" method="POST">
+      <div class="form-group">
+        <label for="identifier"><i class="fas fa-user"></i> Username or Email</label>
+        <input type="text" name="identifier" id="identifier" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Password</label>
+        <input type="password" name="password" id="password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-large">Sign In</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+      <p>New to PageStream? <a href="{{ url_for('signup') }}" style="color: #8d6e63; font-weight: 600;">Create your account</a></p>
+      <a href="{{ url_for('home_page') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    </div>
+  </div>
+
+  <!-- Simple Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+    <p>&copy; 2025 PageStream - Share Your Books With The World</p>
+  </footer>
+</body>
+</html>

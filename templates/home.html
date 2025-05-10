@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to PageStream</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Additional styles just for home page */
+        .hero {
+            background-image: linear-gradient(rgba(93, 64, 55, 0.8), rgba(93, 64, 55, 0.8)), url('/static/background.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            text-align: center;
+            padding: 5rem 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-family: 'Lora', serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: #fff;
+            color: #5d4037;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background-color: #efebe9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .feature {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature i {
+            font-size: 2.5rem;
+            color: #8d6e63;
+            margin-bottom: 1rem;
+        }
+        
+        .feature h3 {
+            font-family: 'Lora', serif;
+            color: #5d4037;
+            margin-bottom: 1rem;
+        }
+        
+        .featured-books {
+            padding: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .featured-books h2 {
+            font-family: 'Lora', serif;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #5d4037;
+            position: relative;
+            font-size: 2rem;
+        }
+        
+        .featured-books h2:after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 3px;
+            background-color: #8d6e63;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .search-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            margin-bottom: 2rem;
+        }
+        
+        .search-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #d7ccc8;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .search-form button {
+            background-color: #8d6e63;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        
+        .search-form button:hover {
+            background-color: #6d4c41;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <a href="{{ url_for('home_page') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+        </a>
+    </div>
+    
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="navbar-welcome">
+            <i class="fas fa-home"></i> Welcome to PageStream
+        </div>
+        <div class="navbar-actions">
+            <a href="{{ url_for('view_books') }}" class="books"><i class="fas fa-book-open"></i> All Books</a>
+            {% if session.username %}
+                <a href="{{ url_for('dashboard') }}"><i class="fas fa-user"></i> Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="{{ url_for('signup') }}"><i class="fas fa-user-plus"></i> Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Your Journey Through Books Starts Here</h1>
+        <p>Discover, share, and connect with fellow book lovers on PageStream - the premier platform for book enthusiasts.</p>
+        <a href="{{ url_for('view_books') }}" class="cta-button">Explore Books</a>
+    </div>
+    
+    <!-- Search Form -->
+    <!-- <div class="container">
+        <form action="{{ url_for('view_books') }}" method="GET" class="search-form">
+            <input type="text" name="search" placeholder="Search for books, authors, or genres...">
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
+        </form>
+    </div> -->
+    
+    <!-- Features Section -->
+    <div class="features">
+        <div class="feature">
+            <i class="fas fa-upload"></i>
+            <h3>Share Your Books</h3>
+            <p>Upload and share your favorite books with our community and receive feedback from fellow book lovers.</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-shopping-cart"></i>
+            <h3>Order Books</h3>
+            <p>Browse and order your preferred books directly through our platform for a seamless reading experience.</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-comments"></i>
+            <h3>Connect & Discuss</h3>
+            <p>Engage in meaningful discussions about your favorite books and discover new perspectives.</p>
+        </div>
+    </div>
+    
+    <!-- Featured Books Section -->
+    <div class="featured-books">
+        <h2>Featured Books</h2>
+        
+        <div class="book-grid">
+            {% set featured_books = BookPost.query.order_by(BookPost.timestamp.asc()).limit(4).all() %}
+            
+            {% for post in featured_books %}
+                <div class="book-card">
+                    <div class="book-cover">
+                        <img src="{{ url_for('static', filename='uploads/' ~ post.image_file) if post.image_file else url_for('static', filename='default-book.jpg') }}" 
+                             alt="{{ post.title }} cover">
+                    </div>
+                    <div class="book-info">
+                        <h3>{{ post.title }}</h3>
+                        <p><strong>Author:</strong> {{ post.author }}</p>
+                        <p>{{ post.description|truncate(100) }}</p>
+                        <span class="book-genre">{{ post.genre }}</span>
+                        <div style="margin-top: 1rem;">
+                            <a href="{{ url_for('book_detail', post_id=post.id) }}" class="btn btn-secondary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-book fa-3x" style="color: #d7ccc8; margin-bottom: 1rem;"></i>
+                    <p>No books have been posted yet.</p>
+                    <p>Be the first to share a book!</p>
+                    {% if 'username' in session %}
+                        <a href="{{ url_for('post_book') }}" class="btn btn-primary">Post a Book</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary">Login to Post</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Join Community Section -->
+    <div style="background-color: #efebe9; padding: 4rem 2rem; text-align: center; margin-bottom: 3rem;">
+        <h2 style="font-family: 'Lora', serif; color: #5d4037; margin-bottom: 1.5rem; font-size: 2rem;">Join Our Growing Community</h2>
+        <p style="max-width: 800px; margin: 0 auto 2rem; font-size: 1.2rem;">Connect with thousands of book enthusiasts, share your favorite reads, and discover your next literary adventure.</p>
+        <a href="{{ url_for('signup') }}" class="btn btn-primary btn-large">Sign Up Now</a>
+    </div>
+    
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 2rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between;">
+            <div style="flex: 1; min-width: 250px; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 1rem; font-family: 'Lora', serif;">PageStream</h3>
+                <p>Share your books with the world and discover new reads from our community.</p>
+            </div>
+            
+            <div style="flex: 1; min-width: 250px; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 1rem; font-family: 'Lora', serif;">Quick Links</h3>
+                <p><a href="{{ url_for('home_page') }}" style="color: #8d6e63; text-decoration: none;">Home</a></p>
+                <p><a href="{{ url_for('view_books') }}" style="color: #8d6e63; text-decoration: none;">Browse Books</a></p>
+                <p><a href="{{ url_for('login') }}" style="color: #8d6e63; text-decoration: none;">Login</a></p>
+                <p><a href="{{ url_for('signup') }}" style="color: #8d6e63; text-decoration: none;">Sign Up</a></p>
+            </div>
+            
+            <div style="flex: 1; min-width: 250px; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 1rem; font-family: 'Lora', serif;">Connect With Us</h3>
+                <div style="display: flex; justify-content: center; gap: 1rem;">
+                    <a href="#" style="color: #8d6e63; font-size: 1.5rem;"><i class="fab fa-facebook"></i></a>
+                    <a href="#" style="color: #8d6e63; font-size: 1.5rem;"><i class="fab fa-twitter"></i></a>
+                    <a href="#" style="color: #8d6e63; font-size: 1.5rem;"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 2rem; border-top: 1px solid rgba(141, 110, 99, 0.2); padding-top: 1.5rem;">
+            <p>&copy; 2025 PageStream - All rights reserved</p>
+        </div>
+    </footer>
+</body>
+</html>

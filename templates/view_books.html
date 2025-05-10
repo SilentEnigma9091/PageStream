@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Books | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Additional styles for the search and filter functionality */
+    .page-layout {
+      display: flex;
+      gap: 2rem;
+    }
+    
+    .filters-sidebar {
+      flex: 0 0 250px;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      align-self: flex-start;
+      position: sticky;
+      top: 20px;
+    }
+    
+    .filters-sidebar h3 {
+      font-family: 'Lora', serif;
+      color: #5d4037;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #d7ccc8;
+    }
+    
+    .filters-sidebar .filter-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .filter-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #5d4037;
+      font-weight: 500;
+    }
+    
+    .filter-group select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    
+    .filter-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .filter-option input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+    
+    .filter-option label {
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+    
+    .books-content {
+      flex: 1;
+    }
+    
+    .search-form {
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      display: flex;
+    }
+    
+    .search-form input[type="text"] {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px 0 0 4px;
+      font-size: 1rem;
+    }
+    
+    .search-form button {
+      background-color: #8d6e63;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .search-form button:hover {
+      background-color: #6d4c41;
+    }
+    
+    .sort-options {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    
+    .sort-options label {
+      margin-right: 0.5rem;
+      color: #5d4037;
+    }
+    
+    .sort-options select {
+      padding: 0.5rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px;
+      margin-right: 1rem;
+    }
+    
+    .book-card .book-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    
+    .btn-buy-now {
+      background-color: #5d4037;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .btn-buy-now:hover {
+      background-color: #3e2723;
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .no-results i {
+      font-size: 3rem;
+      color: #d7ccc8;
+      margin-bottom: 1rem;
+    }
+    .book-card .book-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .book-card .book-actions a {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Adjust height of book-info to provide more space */
+    .book-info {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 220px;
+    }
+
+    .book-info h3 {
+      font-family: 'Lora', serif;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+      color: #5d4037;
+    }
+
+    /* Push book actions to bottom of card */
+    .book-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .book-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .book-info .book-genre {
+      margin-top: auto;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Adjust books container grid for better layout */
+    .books-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 2rem auto;
+    }
+    .price-range {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .price-input {
+      width: 80px;
+      padding: 0.5rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px;
+    }
+    
+    .price-filter-btn {
+      background-color: #8d6e63;
+      color: #fff;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    
+    .book-price {
+      font-weight: bold;
+      color: #3e2723;
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="header">
+    <a href="{{ url_for('home_page') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+    </a>
+  </div>
+  
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <div class="navbar-welcome">
+      <i class="fas fa-book-reader"></i> Books Collection
+    </div>
+    <div class="navbar-actions">
+      {% if 'username' in session %}
+        <a href="{{ url_for('dashboard') }}"><i class="fas fa-user"></i> Dashboard</a>
+        <a href="{{ url_for('post_book') }}"><i class="fas fa-plus-circle"></i> Post Book</a>
+        <a href="{{ url_for('my_orders') }}"><i class="fas fa-shopping-bag"></i> My Orders</a>
+        <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
+        <a href="{{ url_for('signup') }}"><i class="fas fa-user-plus"></i> Sign Up</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h1 class="section-title">
+      {% if is_search_result and search_query %}
+        Search Results for "{{ search_query }}"
+      {% else %}
+        Discover New Books
+      {% endif %}
+    </h1>
+    
+    <!-- Search Form -->
+    <form method="GET" action="{{ url_for('search') }}" class="search-form">
+      <input type="text" name="query" placeholder="Search for books by title, author, or description..." value="{{ search_query|default('') }}">
+      <button type="submit"><i class="fas fa-search"></i> Search</button>
+    </form>
+    
+    <div class="page-layout">
+      <!-- Filters Sidebar -->
+      <div class="filters-sidebar">
+        <h3>Filters</h3>
+        <form id="filter-form" method="GET" action="{{ url_for('search') }}">
+          <!-- Keep the search query if there was one -->
+          {% if search_query %}
+          <input type="hidden" name="query" value="{{ search_query }}">
+          {% endif %}
+          
+          <div class="filter-group">
+            <label for="sort-by">Sort By:</label>
+            <select id="sort-by" name="sort_by" onchange="this.form.submit()">
+              <option value="timestamp" {% if selected_sort_by == 'timestamp' %}selected{% endif %}>Date Added</option>
+              <option value="title" {% if selected_sort_by == 'title' %}selected{% endif %}>Title</option>
+              <option value="author" {% if selected_sort_by == 'author' %}selected{% endif %}>Author</option>
+              <option value="price" {% if selected_sort_by == 'price' %}selected{% endif %}>Price</option>
+            </select>
+            
+            <select id="sort-order" name="sort_order" onchange="this.form.submit()">
+              <option value="asc" {% if selected_sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+              <option value="desc" {% if selected_sort_order == 'desc' %}selected{% endif %}>Descending</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label>Genre:</label>
+            <div class="filter-option">
+              <input type="radio" id="genre-all" name="genre" value="All" {% if not selected_genre or selected_genre == 'All' %}checked{% endif %} onchange="this.form.submit()">
+              <label for="genre-all">All Genres</label>
+            </div>
+            {% for genre in genres %}
+            <div class="filter-option">
+              <input type="radio" id="genre-{{ loop.index }}" name="genre" value="{{ genre[0] }}" {% if selected_genre == genre[0] %}checked{% endif %} onchange="this.form.submit()">
+              <label for="genre-{{ loop.index }}">{{ genre[0] }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <div class="filter-group">
+            <label>Author:</label>
+            <div class="filter-option">
+              <input type="radio" id="author-all" name="author" value="All" {% if not selected_author or selected_author == 'All' %}checked{% endif %} onchange="this.form.submit()">
+              <label for="author-all">All Authors</label>
+            </div>
+            {% for author in authors %}
+            <div class="filter-option">
+              <input type="radio" id="author-{{ loop.index }}" name="author" value="{{ author[0] }}" {% if selected_author == author[0] %}checked{% endif %} onchange="this.form.submit()">
+              <label for="author-{{ loop.index }}">{{ author[0] }}</label>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="filter-group">
+            <label>Price Range:</label>
+            <div class="price-range">
+              <input type="number" id="min-price" name="min_price" placeholder="Min $" min="0" step="0.01" value="{{ min_price|default('') }}" class="price-input">
+              <span>to</span>
+              <input type="number" id="max-price" name="max_price" placeholder="Max $" min="0" step="0.01" value="{{ max_price|default('') }}" class="price-input">
+              <button type="submit" class="price-filter-btn">Apply</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      
+      <!-- Books Content -->
+      <div class="books-content">
+        <!-- Book Grid Display -->
+        <div class="books-container">
+          {% for post in posts %}
+            <div class="book-card">
+              <div class="book-cover">
+                <img src="{{ url_for('static', filename='uploads/' ~ post.image_file) if post.image_file else url_for('static', filename='default-book.jpg') }}" 
+                     alt="{{ post.title }} cover">
+              </div>
+              <div class="book-info">
+                <h3>{{ post.title }}</h3>
+                <p><strong>By:</strong> {{ post.author }}</p>
+                <p>{{ post.description|truncate(100) }}</p>
+                <span class="book-genre">{{ post.genre }}</span>
+                <div class="book-price">${{ "%.2f"|format(post.price|float) }}</div>
+                <div class="book-actions">
+                  <a href="{{ url_for('book_detail', post_id=post.id) }}" class="btn btn-secondary">View Details</a>
+                  <a href="{{ url_for('place_order', post_id=post.id) }}" class="btn-buy-now">Buy Now</a>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="no-results">
+              <i class="fas fa-search fa-3x"></i>
+              <h3>No books found</h3>
+              <p>Try adjusting your search or filters to find what you're looking for.</p>
+              <a href="{{ url_for('view_books') }}" class="btn btn-secondary">Clear Filters</a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+    <p>&copy; 2025 PageStream - Share Your Books With The World</p>
+  </footer>
+</body>
+</html>

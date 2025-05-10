@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Sales | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .sales-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .sales-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .summary-card {
+      background-color: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    
+    .summary-card i {
+      font-size: 2rem;
+      color: #8d6e63;
+      margin-bottom: 1rem;
+    }
+    
+    .summary-card h3 {
+      font-size: 2rem;
+      color: #5d4037;
+      margin-bottom: 0.5rem;
+    }
+    
+    .summary-card p {
+      color: #a1887f;
+      font-size: 1rem;
+    }
+    
+    .sale-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    
+    .sale-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #efebe9;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #d7ccc8;
+    }
+    
+    .sale-header .sale-id {
+      font-weight: 600;
+      color: #5d4037;
+    }
+    
+    .sale-header .sale-date {
+      color: #8d6e63;
+      font-size: 0.9rem;
+    }
+    
+    .sale-content {
+      display: flex;
+      padding: 1.5rem;
+      gap: 1.5rem;
+    }
+    
+    .sale-book-image {
+      flex: 0 0 120px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .sale-book-image img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+    
+    .sale-details {
+      flex: 1;
+    }
+    
+    .sale-details h3 {
+      font-family: 'Lora', serif;
+      margin-bottom: 0.5rem;
+      color: #5d4037;
+    }
+    
+    .sale-details p {
+      margin-bottom: 0.3rem;
+      color: #5d4037;
+    }
+    
+    .sale-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background-color: #f8f5f2;
+      border-top: 1px solid #d7ccc8;
+    }
+    
+    .sale-status {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    .sale-total {
+      font-weight: 600;
+      color: #5d4037;
+      font-size: 1.1rem;
+    }
+    
+    .empty-sales {
+      text-align: center;
+      padding: 3rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-sales i {
+      font-size: 3rem;
+      color: #d7ccc8;
+      margin-bottom: 1rem;
+    }
+    
+    .search-sales {
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .search-sales input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    .search-sales button {
+      background-color: #8d6e63;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .search-sales button:hover {
+      background-color: #6d4c41;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="header">
+    <a href="{{ url_for('home_page') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+    </a>
+  </div>
+  
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <div class="navbar-welcome">
+      <i class="fas fa-chart-line"></i> My Sales
+    </div>
+    <div class="navbar-actions">
+      <a href="{{ url_for('dashboard') }}"><i class="fas fa-user"></i> Dashboard</a>
+      <a href="{{ url_for('view_books') }}" class="books"><i class="fas fa-book"></i> All Books</a>
+      <a href="{{ url_for('my_orders') }}"><i class="fas fa-shopping-bag"></i> My Orders</a>
+      <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h1 class="section-title">My Sales Dashboard</h1>
+    
+    <div class="sales-container">
+      <!-- Sales Summary -->
+      <div class="sales-summary">
+        <div class="summary-card">
+          <i class="fas fa-book-open"></i>
+          <h3>{{ sales|length }}</h3>
+          <p>Total Books Sold</p>
+        </div>
+        <div class="summary-card">
+          <i class="fas fa-money-bill-wave"></i>
+          <h3>${{ "%.2f"|format(sales|map(attribute='total_price')|sum|default(0)) }}</h3>
+          <p>Total Revenue</p>
+        </div>
+        <div class="summary-card">
+          <i class="fas fa-users"></i>
+          <h3>{{ sales|map(attribute='user_id')|unique|list|length }}</h3>
+          <p>Unique Customers</p>
+        </div>
+      </div>
+      
+      <!-- Search -->
+      <div class="search-sales">
+        <input type="text" id="salesSearch" placeholder="Search in your sales..." onkeyup="searchSales()">
+      </div>
+      
+      {% if sales %}
+        {% for sale in sales %}
+          <div class="sale-card">
+            <div class="sale-header">
+              <span class="sale-id">Sale #{{ sale.id }}</span>
+              <span class="sale-date">{{ sale.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+            </div>
+            <div class="sale-content">
+              <div class="sale-book-image">
+                <img src="{{ url_for('static', filename='uploads/' ~ sale.book.image_file) if sale.book.image_file else url_for('static', filename='default-book.jpg') }}" 
+                     alt="{{ sale.book.title }} cover">
+              </div>
+              <div class="sale-details">
+                <h3>{{ sale.book.title }}</h3>
+                <p><strong>Author:</strong> {{ sale.book.author }}</p>
+                <p><strong>Genre:</strong> {{ sale.book.genre }}</p>
+                <p><strong>Buyer:</strong> {{ sale.user.username }}</p>
+                <p><strong>Quantity:</strong> {{ sale.quantity }}</p>
+              </div>
+            </div>
+            <div class="sale-footer">
+              <span class="sale-status">Completed</span>
+              <span class="sale-total">Revenue: ${{ "%.2f"|format(sale.total_price|float) }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-sales">
+          <i class="fas fa-chart-bar fa-3x"></i>
+          <h3>No Sales Yet</h3>
+          <p>You haven't sold any books yet. Try posting some books to get started!</p>
+          <a href="{{ url_for('post_book') }}" class="btn btn-primary">Post a Book</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Simple Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+    <p>&copy; 2025 PageStream - Share Your Books With The World</p>
+  </footer>
+  
+  <script>
+    function searchSales() {
+      const input = document.getElementById('salesSearch');
+      const filter = input.value.toUpperCase();
+      const saleCards = document.getElementsByClassName('sale-card');
+      
+      for (let i = 0; i < saleCards.length; i++) {
+        const card = saleCards[i];
+        const text = card.textContent || card.innerText;
+        
+        if (text.toUpperCase().indexOf(filter) > -1) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>

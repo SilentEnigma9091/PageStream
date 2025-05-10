@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .order-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+    }
+    
+    .book-preview {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #d7ccc8;
+    }
+    
+    .book-image {
+      flex: 0 0 200px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .book-image img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+    
+    .book-details {
+      flex: 1;
+    }
+    
+    .book-details h2 {
+      font-family: 'Lora', serif;
+      color: #5d4037;
+      margin-bottom: 0.75rem;
+    }
+    
+    .book-details p {
+      margin-bottom: 0.5rem;
+    }
+    
+    .order-form {
+      margin-top: 2rem;
+    }
+    
+    .order-form label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #5d4037;
+      font-weight: 500;
+    }
+    
+    .order-form input[type="number"] {
+      width: 100px;
+      padding: 0.75rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    
+    .price-calculation {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background-color: #efebe9;
+      border-radius: 8px;
+    }
+    
+    .price-calculation p {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .price-calculation .total {
+      font-weight: 700;
+      color: #5d4037;
+      font-size: 1.2rem;
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+      border-top: 1px dashed #d7ccc8;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .action-buttons .btn-secondary {
+      background-color: #a1887f;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="header">
+    <a href="{{ url_for('home_page') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+    </a>
+  </div>
+  
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <div class="navbar-welcome">
+      <i class="fas fa-shopping-cart"></i> Order Confirmation
+    </div>
+    <div class="navbar-actions">
+      <a href="{{ url_for('dashboard') }}"><i class="fas fa-user"></i> Dashboard</a>
+      <a href="{{ url_for('view_books') }}" class="books"><i class="fas fa-book"></i> All Books</a>
+      <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h1 class="section-title">Confirm Your Order</h1>
+    
+    <div class="order-container">
+      <div class="book-preview">
+        <div class="book-image">
+          <img src="{{ url_for('static', filename='uploads/' ~ post.image_file) if post.image_file else url_for('static', filename='default-book.jpg') }}" 
+               alt="{{ post.title }} cover">
+        </div>
+        <div class="book-details">
+          <h2>{{ post.title }}</h2>
+          <p><strong>Author:</strong> {{ post.author }}</p>
+          <p><strong>Genre:</strong> {{ post.genre }}</p>
+          <p><strong>Price:</strong> $<span id="book-price">9.99</span></p>
+          <p><strong>Description:</strong></p>
+          <p>{{ post.description }}</p>
+        </div>
+      </div>
+      
+      <form method="POST" class="order-form">
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" value="1" min="1" required onchange="updateTotal()">
+        
+        <div class="price-calculation">
+          <p>
+            <span>Price per book:</span>
+            <span>$<span id="price-per-book">9.99</span></span>
+          </p>
+          <p>
+            <span>Quantity:</span>
+            <span><span id="quantity-display">1</span></span>
+          </p>
+          <p class="total">
+            <span>Total:</span>
+            <span>$<span id="total-price">9.99</span></span>
+          </p>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Confirm Purchase</button>
+          <a href="{{ url_for('view_books') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Books</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Simple Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+    <p>&copy; 2025 PageStream - Share Your Books With The World</p>
+  </footer>
+  
+  <script>
+    function updateTotal() {
+      const quantity = document.getElementById('quantity').value;
+      const pricePerBook = parseFloat(document.getElementById('price-per-book').textContent);
+      const totalPrice = (quantity * pricePerBook).toFixed(2);
+      
+      document.getElementById('quantity-display').textContent = quantity;
+      document.getElementById('total-price').textContent = totalPrice;
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateTotal();
+    });
+  </script>
+</body>
+</html>

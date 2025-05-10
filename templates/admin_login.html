@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .admin-login-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+    }
+    
+    .admin-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .admin-header h1 {
+      color: #5d4037;
+      font-family: 'Lora', serif;
+    }
+    
+    .admin-icon {
+      font-size: 48px;
+      color: #8d6e63;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="header">
+    <a href="{{ url_for('home_page') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+    </a>
+  </div>
+
+  <!-- Admin Login Form Container -->
+  <div class="admin-login-container">
+    <div class="admin-header">
+      <i class="fas fa-user-shield admin-icon"></i>
+      <h1>Admin Access</h1>
+    </div>
+    
+    <!-- Flash Messages (Errors or Success) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Login Form -->
+    <form class="form" method="POST">
+      <div class="form-group">
+        <label for="username"><i class="fas fa-user"></i> Admin Username</label>
+        <input type="text" name="username" id="username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Admin Password</label>
+        <input type="password" name="password" id="password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-large">Admin Sign In</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="{{ url_for('login') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to User Login</a>
+    </div>
+  </div>
+
+  <!-- Simple Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+    <p>&copy; 2025 PageStream - Share Your Books With The World</p>
+  </footer>
+</body>
+</html>

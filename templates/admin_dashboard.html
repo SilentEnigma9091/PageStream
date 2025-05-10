@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .admin-header {
+      background-color: #5d4037;
+      color: white;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .admin-title {
+      display: flex;
+      align-items: center;
+    }
+    
+    .admin-title i {
+      font-size: 1.8rem;
+      margin-right: 1rem;
+    }
+    
+    .admin-navbar {
+      background-color: #8d6e63;
+      padding: 0.5rem 2rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .admin-navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem 1.2rem;
+      margin-right: 1rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+    
+    .admin-navbar a i {
+      margin-right: 0.5rem;
+    }
+    
+    .admin-navbar a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .admin-navbar a.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 500;
+    }
+    
+    .admin-dashboard-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    
+    .admin-stats-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    
+    .admin-stat-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .admin-stat-card:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+    }
+    
+    .admin-stat-card:nth-child(1):before {
+      background-color: #4CAF50;
+    }
+    
+    .admin-stat-card:nth-child(2):before {
+      background-color: #2196F3;
+    }
+    
+    .admin-stat-card:nth-child(3):before {
+      background-color: #FF9800;
+    }
+    
+    .admin-stat-card i {
+      font-size: 2.5rem;
+      margin-bottom: 1.2rem;
+      opacity: 0.8;
+    }
+    
+    .admin-stat-card:nth-child(1) i {
+      color: #4CAF50;
+    }
+    
+    .admin-stat-card:nth-child(2) i {
+      color: #2196F3;
+    }
+    
+    .admin-stat-card:nth-child(3) i {
+      color: #FF9800;
+    }
+    
+    .admin-stat-card h3 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    
+    .admin-stat-card p {
+      color: #666;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    .admin-section {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+    }
+    
+    .admin-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .admin-section-header h2 {
+      color: #5d4037;
+      font-family: 'Lora', serif;
+      font-size: 1.5rem;
+    }
+    
+    .admin-section-header a {
+      color: #8d6e63;
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    
+    .admin-section-header a i {
+      margin-left: 0.5rem;
+    }
+    
+    .latest-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .latest-table th, 
+    .latest-table td {
+      padding: 1rem;
+      text-align: left;
+    }
+    
+    .latest-table th {
+      color: #5d4037;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .latest-table tr:not(:last-child) td {
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .latest-table tr:hover td {
+      background-color: #f8f5f2;
+    }
+    
+    .admin-section-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    /* Sticky Footer Styling */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .content-wrapper {
+      flex: 1 0 auto;
+    }
+
+    footer {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 1rem;
+      background: #5d4037;
+      color: white;
+      margin-top: auto;
+    }
+
+
+    
+    @media (max-width: 768px) {
+      .admin-stats-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .admin-navbar {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0.5rem 1rem;
+      }
+      
+      .admin-navbar a {
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div class="admin-title">
+      <i class="fas fa-user-shield"></i>
+      <h1>PageStream Admin</h1>
+    </div>
+    <a href="{{ url_for('admin_logout') }}" class="btn" style="background-color: #a1887f;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </header>
+
+  <!-- Admin Navigation -->
+  <nav class="admin-navbar">
+    <a href="{{ url_for('admin_dashboard') }}" class="active">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    <a href="{{ url_for('admin_users') }}">
+      <i class="fas fa-users"></i> Users
+    </a>
+    <a href="{{ url_for('admin_books') }}">
+      <i class="fas fa-book"></i> Books
+    </a>
+    <a href="{{ url_for('admin_orders') }}">
+      <i class="fas fa-shopping-cart"></i> Orders
+    </a>
+    <a href="{{ url_for('home_page') }}" target="_blank">
+      <i class="fas fa-external-link-alt"></i> View Site
+    </a>
+  </nav>
+
+  <div class="admin-dashboard-container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Stats Cards -->
+    <div class="admin-stats-cards">
+      <div class="admin-stat-card">
+        <i class="fas fa-users"></i>
+        <h3>{{ total_users }}</h3>
+        <p>Total Users</p>
+      </div>
+      <div class="admin-stat-card">
+        <i class="fas fa-book"></i>
+        <h3>{{ total_books }}</h3>
+        <p>Total Books</p>
+      </div>
+      <div class="admin-stat-card">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>{{ total_orders }}</h3>
+        <p>Total Orders</p>
+      </div>
+    </div>
+
+    <!-- Latest Users Section -->
+    <section class="admin-section">
+      <div class="admin-section-header">
+        <h2>Latest Users</h2>
+        <a href="{{ url_for('admin_users') }}">View All Users <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <table class="latest-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in User.query.order_by(User.id.desc()).limit(5).all() %}
+            <tr>
+              <td>#{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Latest Books Section -->
+    <section class="admin-section">
+      <div class="admin-section-header">
+        <h2>Latest Books</h2>
+        <a href="{{ url_for('admin_books') }}">View All Books <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <table class="latest-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th>Posted By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in BookPost.query.order_by(BookPost.id.desc()).limit(5).all() %}
+            <tr>
+              <td>#{{ book.id }}</td>
+              <td>{{ book.title }}</td>
+              <td>{{ book.author }}</td>
+              <td>${{ "%.2f"|format(book.price) }}</td>
+              <td>{{ book.user.username }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Latest Orders Section -->
+    <section class="admin-section">
+      <div class="admin-section-header">
+        <h2>Latest Orders</h2>
+        <a href="{{ url_for('admin_orders') }}">View All Orders <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <table class="latest-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Book</th>
+            <th>User</th>
+            <th>Total Price</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in Order.query.order_by(Order.id.desc()).limit(5).all() %}
+            <tr>
+              <td>#{{ order.id }}</td>
+              <td>{{ order.book.title }}</td>
+              <td>{{ order.user.username }}</td>
+              <td>${{ "%.2f"|format(order.total_price) }}</td>
+              <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+  </div>
+
+  <!-- Admin Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: #5d4037; color: white;">
+    <p>&copy; 2025 PageStream - Admin Portal</p>
+  </footer>
+</body>
+</html>

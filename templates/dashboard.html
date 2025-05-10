@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | PageStream</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    
+    .dashboard-search {
+      flex: 1;
+      margin-left: 2rem;
+      display: flex;
+    }
+    
+    .dashboard-search input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #d7ccc8;
+      border-radius: 4px 0 0 4px;
+      font-size: 1rem;
+    }
+    
+    .dashboard-search button {
+      background-color: #8d6e63;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .dashboard-search button:hover {
+      background-color: #6d4c41;
+    }
+    
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .stat-card i {
+      font-size: 2rem;
+      color: #8d6e63;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-card h3 {
+      font-size: 1.8rem;
+      color: #5d4037;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-card p {
+      color: #a1887f;
+      font-size: 0.9rem;
+    }
+    
+    .tabs-container {
+      margin-top: 2rem;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #d7ccc8;
+      margin-bottom: 1.5rem;
+    }
+    
+    .tab {
+      padding: 1rem 2rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: #8d6e63;
+      position: relative;
+    }
+    
+    .tab.active {
+      color: #5d4037;
+      font-weight: 600;
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background-color: #8d6e63;
+    }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .profile-section {
+      margin-bottom: 2rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      color: #d7ccc8;
+      margin-bottom: 1rem;
+    }
+    
+    /* Books grid */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    /* Order and sales tables */
+    .dashboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dashboard-table thead {
+      background-color: #efebe9;
+    }
+    
+    .dashboard-table th,
+    .dashboard-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #d7ccc8;
+    }
+    
+    .dashboard-table th {
+      font-weight: 600;
+      color: #5d4037;
+    }
+    
+    .dashboard-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .dashboard-table tr:hover {
+      background-color: #f8f5f2;
+    }
+    
+    .dashboard-table .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+    
+    /* Status badges */
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .status-completed {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div class="header">
+    <a href="{{ url_for('home_page') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="PageStream Logo" class="logo">
+    </a>
+  </div>
+  
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <div class="navbar-welcome">
+      Welcome, {{ user.username }}!
+    </div>
+    <div class="navbar-actions">
+      <a href="{{ url_for('view_books') }}" class="books"><i class="fas fa-book"></i> All Books</a>
+      <a href="{{ url_for('post_book') }}"><i class="fas fa-plus-circle"></i> Post Book</a>
+      <a href="{{ url_for('my_orders') }}"><i class="fas fa-shopping-bag"></i> My Orders</a>
+      <a href="{{ url_for('my_sales') }}"><i class="fas fa-chart-line"></i> My Sales</a>
+      <a href="{{ url_for('logout') }}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="dashboard-container">
+      <!-- Dashboard Header with Search -->
+      <div class="dashboard-header">
+        <h1 class="section-title" style="margin: 0;">My Dashboard</h1>
+        <div class="dashboard-search">
+          <form action="{{ url_for('search') }}" method="GET" style="display: flex; width: 100%;">
+            <input type="text" name="query" id="dashboardSearch" placeholder="Search in books...">
+            <button type="submit"><i class="fas fa-search"></i></button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <i class="fas fa-book"></i>
+          <h3>{{ total_books }}</h3>
+          <p>Books Posted</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-shopping-bag"></i>
+          <h3>{{ total_orders }}</h3>
+          <p>Orders Placed</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-tags"></i>
+          <h3>{{ total_sales }}</h3>
+          <p>Books Sold</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-dollar-sign"></i>
+          <h3>${{ "%.2f"|format(money_earned) }}</h3>
+          <p>Revenue</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-shopping-cart"></i>
+          <h3>${{ "%.2f"|format(money_spent) }}</h3>
+          <p>Spent on Books</p>
+        </div>
+      </div>
+      
+      <!-- Profile Section -->
+      <div class="profile-section">
+        <div class="profile-card">
+          <div class="profile-pic-container">
+            <img src="{{ url_for('static', filename='uploads/' ~ user.profile_pic) if user.profile_pic else url_for('static', filename='default-profile.jpg') }}" 
+                 alt="Profile Picture" class="profile-pic">
+          </div>
+          <div class="profile-info">
+            <h2>{{ user.name if user.name else user.username }}</h2>
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            {% if user.gender %}
+              <p><strong>Gender:</strong> {{ user.gender }}</p>
+            {% endif %}
+            {% if user.birthdate %}
+              <p><strong>Birthdate:</strong> {{ user.birthdate }}</p>
+            {% endif %}
+            
+            <div class="profile-actions">
+              <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                <i class="fas fa-user-edit"></i> Edit Profile
+              </a>
+              <button type="button" class="btn btn-secondary" onclick="showDeleteConfirmation()">
+                <i class="fas fa-user-times"></i> Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tabs Container -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <div class="tab active" onclick="openTab(event, 'my-books')">My Books</div>
+          <div class="tab" onclick="openTab(event, 'my-orders')">My Orders</div>
+          <div class="tab" onclick="openTab(event, 'my-sales')">My Sales</div>
+        </div>
+        
+        <!-- My Books Tab -->
+        <div id="my-books" class="tab-content active">
+          {% if books %}
+            <div class="books-grid searchable-content">
+              {% for book in books %}
+                <div class="book-card">
+                  <div class="book-cover">
+                    <img src="{{ url_for('static', filename='uploads/' ~ book.image_file) if book.image_file else url_for('static', filename='default-book.jpg') }}" 
+                         alt="{{ book.title }} cover">
+                  </div>
+                  <div class="book-info">
+                    <h3>{{ book.title }}</h3>
+                    <p>By {{ book.author }}</p>
+                    <p>${{ "%.2f"|format(book.price) }}</p>
+                    <span class="book-genre">{{ book.genre }}</span>
+                    <div style="margin-top: 1rem;">
+                      <a href="{{ url_for('book_detail', post_id=book.id) }}" class="btn btn-secondary" style="width: 100%;">View Details</a>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-state">
+              <i class="fas fa-book"></i>
+              <h3>No Books Posted Yet</h3>
+              <p>You haven't posted any books for sale. Start sharing your collection!</p>
+              <a href="{{ url_for('post_book') }}" class="btn btn-primary">Post Your First Book</a>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- My Orders Tab -->
+        <div id="my-orders" class="tab-content">
+          {% if orders %}
+            <table class="dashboard-table searchable-content">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Book</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for order in orders %}
+                  <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.book.title }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>${{ "%.2f"|format(order.total_price) }}</td>
+                    <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                      <a href="{{ url_for('book_detail', post_id=order.book.id) }}" class="btn btn-secondary">View Book</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <div class="empty-state">
+              <i class="fas fa-shopping-bag"></i>
+              <h3>No Orders Yet</h3>
+              <p>You haven't placed any orders yet. Start exploring our collection!</p>
+              <a href="{{ url_for('view_books') }}" class="btn btn-primary">Browse Books</a>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- My Sales Tab -->
+        <div id="my-sales" class="tab-content">
+          {% if sales %}
+            <table class="dashboard-table searchable-content">
+              <thead>
+                <tr>
+                  <th>Sale ID</th>
+                  <th>Book</th>
+                  <th>Buyer</th>
+                  <th>Quantity</th>
+                  <th>Revenue</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sale in sales %}
+                  <tr>
+                    <td>#{{ sale.id }}</td>
+                    <td>{{ sale.book.title }}</td>
+                    <td>{{ sale.user.username }}</td>
+                    <td>{{ sale.quantity }}</td>
+                    <td>${{ "%.2f"|format(sale.total_price) }}</td>
+                    <td>{{ sale.created_at.strftime('%Y-%m-%d') }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <div class="empty-state">
+              <i class="fas fa-chart-line"></i>
+              <h3>No Sales Yet</h3>
+              <p>You haven't sold any books yet. Try posting some books to get started!</p>
+              <a href="{{ url_for('post_book') }}" class="btn btn-primary">Post a Book</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Account Confirmation Modal (Hidden by default) -->
+  <div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background-color: white; border-radius: 8px; padding: 2rem; max-width: 500px; width: 100%;">
+      <h3 style="color: #c62828; margin-bottom: 1rem;">Delete Account</h3>
+      <p style="margin-bottom: 1.5rem;">Are you sure you want to delete your account? This action cannot be undone and all your books, orders, and sales data will be permanently removed.</p>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <button onclick="hideDeleteConfirmation()" class="btn btn-secondary">Cancel</button>
+        <form action="{{ url_for('delete_account') }}" method="POST" style="margin: 0;">
+          <button type="submit" class="btn" style="background-color: #c62828; color: white;">Delete My Account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Simple Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: rgba(141, 110, 99, 0.1); color: #8d6e63;">
+    <p>&copy; 2025 PageStream - Share Your Books With The World</p>
+  </footer>
+  
+  <script>
+    // Tab functionality
+    function openTab(evt, tabName) {
+      // Hide all tab content
+      var tabcontent = document.getElementsByClassName("tab-content");
+      for (var i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove("active");
+      }
+      
+      // Remove active class from all tabs
+      var tabs = document.getElementsByClassName("tab");
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active");
+      }
+      
+      // Show the selected tab content and mark tab as active
+      document.getElementById(tabName).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+    
+    // Delete account modal
+    function showDeleteConfirmation() {
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+    
+    function hideDeleteConfirmation() {
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+    
+    // Dashboard search functionality
+    function searchDashboard() {
+      const searchTerm = document.getElementById('dashboardSearch').value.toLowerCase();
+
+      const activeTab = document.querySelector('.tab-content.active');
+      const searchableContent = activeTab.querySelector('.searchable-content');
+      
+      if (activeTab.id === 'my-books') {
+        // Search in books
+        const bookCards = searchableContent.querySelectorAll('.book-card');
+        bookCards.forEach(card => {
+          const text = card.textContent.toLowerCase();
+          if (text.includes(searchTerm)) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      } else {
+        // Search in orders or sales tables
+        const tableRows = searchableContent.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          if (text.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+    }
+    
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('deleteModal');
+      if (event.target === modal) {
+        hideDeleteConfirmation();
+      }
+    }
+  </script>
+</body>
+</html>

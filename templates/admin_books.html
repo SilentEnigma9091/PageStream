@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Books | PageStream Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .admin-header {
+      background-color: #5d4037;
+      color: white;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .admin-title {
+      display: flex;
+      align-items: center;
+    }
+    
+    .admin-title i {
+      font-size: 1.8rem;
+      margin-right: 1rem;
+    }
+    
+    .admin-navbar {
+      background-color: #8d6e63;
+      padding: 0.5rem 2rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .admin-navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem 1.2rem;
+      margin-right: 1rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+    
+    .admin-navbar a i {
+      margin-right: 0.5rem;
+    }
+    
+    .admin-navbar a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .admin-navbar a.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 500;
+    }
+    
+    .admin-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    
+    .flash-message {
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 4px;
+    }
+    
+    .flash-message.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    
+    .flash-message.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+    
+    .search-filter-bar {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 1.2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .search-box {
+      flex-grow: 1;
+      display: flex;
+    }
+    
+    .search-box input {
+      flex-grow: 1;
+      padding: 0.8rem 1.2rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px 0 0 4px;
+      font-size: 1rem;
+    }
+    
+    .search-box button {
+      background-color: #8d6e63;
+      color: white;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      padding: 0.8rem 1.2rem;
+      cursor: pointer;
+    }
+    
+    .admin-table-container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+      padding: 1.2rem 1rem;
+      text-align: left;
+    }
+    
+    .admin-table th {
+      background-color: #f5f5f5;
+      font-weight: 600;
+      color: #5d4037;
+    }
+    
+    .admin-table tr:not(:last-child) td {
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .admin-table tr:hover td {
+      background-color: #f8f5f2;
+    }
+    
+    .book-details {
+      display: flex;
+      align-items: center;
+    }
+    
+    .book-cover {
+      width: 60px;
+      height: 80px;
+      object-fit: cover;
+      margin-right: 1rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .book-info h4 {
+      margin: 0;
+      color: #5d4037;
+      font-size: 1rem;
+    }
+    
+    .book-info small {
+      color: #757575;
+      font-size: 0.9rem;
+    }
+    
+    .book-info p {
+      margin: 0.3rem 0 0;
+      font-weight: 600;
+      color: #4caf50;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-view, .btn-danger {
+      padding: 0.5rem 0.8rem;
+      border-radius: 4px;
+      border: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-view {
+      background-color: #e0e0e0;
+      color: #5d4037;
+    }
+    
+    .btn-view:hover {
+      background-color: #d0d0d0;
+    }
+    
+    .btn-danger {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .btn-danger:hover {
+      background-color: #ffcdd2;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      width: 80%;
+      max-width: 700px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      animation: modalFadeIn 0.3s;
+    }
+    
+    @keyframes modalFadeIn {
+      from {opacity: 0; transform: translateY(-20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      color: #5d4037;
+      font-family: 'Lora', serif;
+    }
+    
+    .modal-close {
+      color: #aaa;
+      font-size: 1.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .modal-close:hover {
+      color: #5d4037;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+    }
+    
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .btn {
+      padding: 0.8rem 1.2rem;
+      border-radius: 4px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      color: white;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-book-details {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .book-cover-large {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .book-detail-info {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .book-detail-info h3 {
+      margin: 0 0 0.5rem;
+      color: #5d4037;
+      font-family: 'Lora', serif;
+    }
+    
+    .book-detail-info p {
+      margin: 0.3rem 0;
+      color: #757575;
+    }
+    
+    .book-detail-info p.price {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #4caf50;
+      margin-top: 0.5rem;
+    }
+    
+    .book-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .book-tag {
+      background-color: #f0f0f0;
+      color: #757575;
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    .book-description {
+      margin-top: 1.5rem;
+    }
+    
+    .book-description h4 {
+      color: #5d4037;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 0.5rem;
+    }
+    
+    .book-description p {
+      line-height: 1.6;
+      color: #424242;
+    }
+    /* Sticky Footer Styling */
+    html, body {
+    height: 100%;
+    margin: 0;
+    }
+
+    body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    }
+
+    .content-wrapper {
+    flex: 1 0 auto;
+    }
+
+    footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 1rem;
+    background: #5d4037;
+    color: white;
+    margin-top: auto;
+    }
+
+
+    
+    @media (max-width: 768px) {
+      .btn-book-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .book-cover-large {
+        max-width: 150px;
+      }
+      
+      .admin-navbar {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0.5rem 1rem;
+      }
+      
+      .admin-navbar a {
+        white-space: nowrap;
+      }
+      
+      .modal-content {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="content-wrapper">
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div class="admin-title">
+      <i class="fas fa-user-shield"></i>
+      <h1>PageStream Admin</h1>
+    </div>
+    <a href="{{ url_for('admin_logout') }}" class="btn" style="background-color: #a1887f;">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </header>
+
+  <!-- Admin Navigation -->
+  <nav class="admin-navbar">
+    <a href="{{ url_for('admin_dashboard') }}">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    <a href="{{ url_for('admin_users') }}">
+      <i class="fas fa-users"></i> Users
+    </a>
+    <a href="{{ url_for('admin_books') }}" class="active">
+      <i class="fas fa-book"></i> Books
+    </a>
+    <a href="{{ url_for('admin_orders') }}">
+      <i class="fas fa-shopping-cart"></i> Orders
+    </a>
+    <a href="{{ url_for('home_page') }}" target="_blank">
+      <i class="fas fa-external-link-alt"></i> View Site
+    </a>
+  </nav>
+
+  <div class="admin-container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Page Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h2 style="color: #5d4037; font-family: 'Lora', serif;">Manage Books</h2>
+      <div>
+        <span style="color: #666; margin-right: 0.5rem;">Total Books:</span>
+        <span style="font-weight: 600; color: #5d4037;">{{ books|length }}</span>
+      </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="search-filter-bar">
+      <form class="search-box" action="{{ url_for('admin_books') }}" method="GET">
+        <input type="text" name="search" placeholder="Search books by title or author..." value="{{ request.args.get('search', '') }}">
+        <button type="submit"><i class="fas fa-search"></i></button>
+      </form>
+    </div>
+
+    <!-- Books Table -->
+    <div class="admin-table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Book</th>
+            <th>Posted By</th>
+            <th>Category</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+            <tr>
+              <td>#{{ book.id }}</td>
+              <td>
+                <div class="book-details">
+                  {% if book.image_file %}
+                    <img src="{{ url_for('static', filename='uploads/' + book.image_file) }}" alt="{{ book.title }}" class="book-cover">
+                  {% else %}
+                    <img src="{{ url_for('static', filename='default-book.png') }}" alt="{{ book.title }}" class="book-cover">
+                  {% endif %}
+                  <div class="book-info">
+                    <h4>{{ book.title }}</h4>
+                    <small>by {{ book.author }}</small>
+                    <p>${{ "%.2f"|format(book.price) }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ book.user.username }}</td>
+              <td>{{ book.genre }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-view" onclick="openBookModal({{ book.id }})">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                  <form method="POST" action="{{ url_for('admin_delete_book', book_id=book.id) }}" onsubmit="return confirm('Are you sure you want to delete this book? This action cannot be undone.');">
+                    <button type="submit" class="btn-danger">
+                      <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Book Details Modal -->
+    {% for book in books %}
+    <div id="bookModal{{ book.id }}" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Book Details</h2>
+          <span class="modal-close" onclick="closeBookModal({{ book.id }})">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="btn-book-details">
+            <div>
+              {% if book.image_file %}
+                <img src="{{ url_for('static', filename='uploads/' + book.image_file) }}" alt="{{ book.title }}" class="book-cover-large">
+              {% else %}
+                <img src="{{ url_for('static', filename='default-book.png') }}" alt="{{ book.title }}" class="book-cover-large">
+              {% endif %}
+            </div>
+            <div class="book-detail-info">
+              <h3>{{ book.title }}</h3>
+              <p><strong>Author:</strong> {{ book.author }}</p>
+              <p><strong>Category:</strong> {{ book.genre }}</p>
+              <p><strong>Posted By:</strong> {{ book.user.username }}</p>
+              <p><strong>Posted On:</strong> {{ book.timestamp.strftime('%B %d, %Y') }}</p>
+              <p class="price">${{ "%.2f"|format(book.price) }}</p>              
+              <div class="book-tags">
+                {% if book.condition %}
+                  <span class="book-tag">{{ book.condition }}</span>
+                {% endif %}
+                {% if book.language %}
+                  <span class="book-tag">{{ book.language }}</span>
+                {% endif %}
+                {% if book.publisher %}
+                  <span class="book-tag">{{ book.publisher }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <div class="book-description">
+            <h4>Description</h4>
+            <p>{{ book.description }}</p>
+          </div>
+          
+          {% if book.comments %}
+            <div style="margin-top: 1.5rem;">
+              <h4 style="color: #5d4037; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.5rem;">Comments ({{ book.comments|length }})</h4>
+              {% for comment in book.comments %}
+                <div style="padding: 0.8rem 0; border-bottom: 1px solid #f0f0f0;">
+                  <div style="display: flex; justify-content: space-between;">
+                    <p style="margin: 0; font-weight: 500; color: #5d4037;">{{ comment.user.username }}</p>
+                    <small style="color: #757575;">{{ comment.timestamp.strftime('%B %d, %Y') }}</small>
+                  </div>
+                  <p style="margin: 0.5rem 0 0;">{{ comment.content }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button class="btn" style="background-color: #8d6e63;" onclick="closeBookModal({{ book.id }})">Close</button>
+          <form method="POST" action="{{ url_for('admin_delete_book', book_id=book.id) }}" onsubmit="return confirm('Are you sure you want to delete this book? This action cannot be undone.');">
+            <button type="submit" class="btn-danger">Delete Book</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+  </div>
+
+  <!-- Admin Footer -->
+  <footer style="text-align: center; padding: 1rem; margin-top: 3rem; background: #5d4037; color: white;">
+    <p>&copy; 2025 PageStream - Admin Portal</p>
+  </footer>
+
+  <script>
+    function openBookModal(bookId) {
+      document.getElementById('bookModal' + bookId).style.display = 'block';
+    }
+    
+    function closeBookModal(bookId) {
+      document.getElementById('bookModal' + bookId).style.display = 'none';
+    }
+    
+    // Close modal when clicking outside the modal content
+    window.onclick = function(event) {
+      if (event.target.className === 'modal') {
+        event.target.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
